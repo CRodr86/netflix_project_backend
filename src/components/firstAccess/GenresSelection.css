@@ -1,0 +1,12 @@
+.selected {
+    border: 3px solid #007bff;
+    box-shadow: 0 0 10px #007bff;
+  }
+
+.movie-poster {
+    cursor: pointer;
+}
+
+.movie-poster:hover {
+    transform: scale(1.02);
+}
