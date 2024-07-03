@@ -1,4 +1,4 @@
-const getState = ({ /*getStore, getActions,*/ setStore }) => {
+const getState = ({ /*getStore,*/ getActions, setStore }) => {
   return {
     store: {
       token: null,
@@ -7,8 +7,15 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
       userExistsResponse: null,
       emailExistsResponse: null,
       successfullRegistration: false,
+      firstMoviesData: [],
       moviesData: [],
+      firstSeriesData: [],
       seriesData: [],
+      page: "movies",
+      movieInfo: {},
+      serieInfo: {},
+      ratedMoviesData: [],
+      ratedSeriesData: [],
     },
     actions: {
       login: async (username, password) => {
@@ -37,7 +44,7 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
             localStorage.setItem("user", JSON.stringify(userData));
 
             setStore({ token: localStorage.getItem("jwt-token") });
-            setStore({ currentUser: localStorage.getItem("user") });
+            setStore({ currentUser: JSON.parse(localStorage.getItem("user")) });
             setStore({ showLoginModal: false });
           }
         } catch (error) {
@@ -104,10 +111,10 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
       clearUserExistsResponse: () => {
         setStore({ userExistsResponse: null });
       },
-      getMoviesData: async (genres) => {
+      getFirstMoviesData: async (genres, user_id) => {
         try {
           const response = await fetch(
-            import.meta.env.VITE_BACKEND_URL + "/movies",
+            import.meta.env.VITE_BACKEND_URL + "/first-movies",
             {
               method: "POST",
               headers: {
@@ -115,6 +122,27 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
               },
               body: JSON.stringify({
                 genre: genres,
+                user_id: user_id,
+              }),
+            }
+          );
+          const data = await response.json();
+          setStore({ firstMoviesData: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getMoviesData: async (user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + "/recommend-movies",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: user_id,
               }),
             }
           );
@@ -124,10 +152,10 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
           console.log(error);
         }
       },
-      getSeriesData: async (genres) => {
+      getFirstSeriesData: async (genres, user_id) => {
         try {
           const response = await fetch(
-            import.meta.env.VITE_BACKEND_URL + "/series",
+            import.meta.env.VITE_BACKEND_URL + "/first-series",
             {
               method: "POST",
               headers: {
@@ -135,11 +163,44 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
               },
               body: JSON.stringify({
                 genre: genres,
+                user_id: user_id,
+              }),
+            }
+          );
+          const data = await response.json();
+          setStore({ firstSeriesData: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getSeriesData: async (user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + "/recommend-series",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: user_id,
               }),
             }
           );
           const data = await response.json();
           setStore({ seriesData: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getUserById: async (id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/user/${id}`
+          );
+          const data = await response.json();
+          setStore({ currentUser: data });
+          localStorage.setItem("user", JSON.stringify(data));
         } catch (error) {
           console.log(error);
         }
@@ -162,7 +223,114 @@ const getState = ({ /*getStore, getActions,*/ setStore }) => {
             }
           );
           if (response.status === 201) {
-            console.log("First access data sent successfully");
+            getActions().getUserById(user_id);
+            setStore({ firstMoviesData: [] });
+            setStore({ firstSeriesData: [] });
+            setStore({ page: "movies" });
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      setPage: (value) => {
+        if (value === "movies" || value === "series") {
+          setStore({ movieInfo: {} });
+          setStore({ serieInfo: {} });
+        } else if (value === "movieInfo") {
+          setStore({ movieInfo: {} });
+        } else if (value === "serieInfo") {
+          setStore({ serieInfo: {} });
+        } else if (value === "ratedMovies") {
+          setStore({ ratedMoviesData: [] });
+          setStore({ ratedSeriesData: [] });
+        }
+        setStore({ page: value });
+      },
+      getMovieById: async (movie_id, user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/movie/${movie_id}/${user_id}`
+          );
+          const data = await response.json();
+          setStore({ movieInfo: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getSerieById: async (movie_id, user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/serie/${movie_id}/${user_id}`
+          );
+          const data = await response.json();
+          setStore({ serieInfo: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getUserMoviesRatings: async (user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/user-ratings/${user_id}/movies`
+          );
+          const data = await response.json();
+          setStore({ ratedMoviesData: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      rateMovie: async (user_id, movie_id, rating) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + "/rate-movie",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: user_id,
+                movie_id: movie_id,
+                rating: rating,
+              }),
+            }
+          );
+          if (response.status === 201) {
+            getActions().getUserById(user_id);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getUserSeriesRatings: async (user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/user-ratings/${user_id}/series`
+          );
+          const data = await response.json();
+          setStore({ ratedSeriesData: data });
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      rateSerie: async (user_id, serie_id, rating) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + "/rate-serie",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: user_id,
+                serie_id: serie_id,
+                rating: rating,
+              }),
+            }
+          );
+          if (response.status === 201) {
+            getActions().getUserById(user_id);
           }
         } catch (error) {
           console.log(error);

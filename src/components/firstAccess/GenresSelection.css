@@ -1,12 +1,21 @@
 .selected {
-    border: 3px solid #007bff;
+    border: 5px solid #007bff;
     box-shadow: 0 0 10px #007bff;
-  }
-
-.movie-poster {
-    cursor: pointer;
 }
 
-.movie-poster:hover {
+.poster-container {
+    height: 448px;
+    margin-bottom: 46px;
+}
+
+.poster {
+    cursor: pointer;
+    object-fit: cover;
+    height: 100%;
+}
+
+.poster:hover {
     transform: scale(1.02);
+    transition: transform 0.3s;
+    filter: brightness(0.8);
 }

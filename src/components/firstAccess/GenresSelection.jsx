@@ -1,18 +1,20 @@
 import { useState, useContext } from "react";
 import { Context } from "../../store/appContext";
-import { Row, Col, Button } from "react-bootstrap";
+import { Row, Col, Button, Spinner } from "react-bootstrap";
 import "./GenresSelection.css"; // Asegúrate de crear este archivo y definir los estilos necesarios
+import ScrollToTop from "../utils/ScrollToTop";
 
 const GenresSelection = () => {
   const { actions, store } = useContext(Context);
-  const { getMoviesData, getSeriesData, sendFirstAccessData } = actions;
-  const { moviesData, seriesData } = store;
+  const { getFirstMoviesData, getFirstSeriesData, sendFirstAccessData } = actions;
+  const { firstMoviesData, firstSeriesData } = store;
 
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedMovies, setSelectedMovies] = useState([]);
   const [selectedSeries, setSelectedSeries] = useState([]);
   const [isSelectingMovies, setIsSelectingMovies] = useState(false);
   const [isSelectingSeries, setIsSelectingSeries] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
@@ -67,20 +69,33 @@ const GenresSelection = () => {
     }
   };
 
-  const handleContinueFromGenres = () => {
-    getMoviesData(selectedGenres);
+  const handleContinueFromGenres = async () => {
+    setLoading(true);
+    await getFirstMoviesData(selectedGenres, currentUser.id);
     setIsSelectingMovies(true);
+    setLoading(false);
   };
 
-  const handleContinueFromMovies = () => {
-    getSeriesData(selectedGenres);
+  const handleContinueFromMovies = async () => {
+    setLoading(true);
+    await getFirstSeriesData(selectedGenres, currentUser.id);
     setIsSelectingMovies(false);
     setIsSelectingSeries(true);
+    setLoading(false);
   };
 
-  if (isSelectingSeries && seriesData && seriesData.length > 0) {
+  if (loading) {
+    return (
+      <Row className="justify-content-center align-items-center min-vh-100">
+        <Spinner animation="border" />
+      </Row>
+    );
+  }
+
+  if (isSelectingSeries && firstSeriesData && firstSeriesData.length > 0) {
     return (
       <>
+        <ScrollToTop />
         <Row className="justify-content-center">
           <Col xs={12} md={6} className="text-center">
             <h1>Elige tus series favoritas</h1>
@@ -92,24 +107,31 @@ const GenresSelection = () => {
           </Col>
         </Row>
         <Row className="justify-content-center px-3">
-          {seriesData.map((series, index) => (
+          {firstSeriesData.map((series, index) => (
             <Col
               xs={4}
               md={2}
               key={index}
               onClick={() => toggleSeriesSelection(series.id)}
+              className="poster-container"
             >
               {series.poster_url ? (
                 <img
                   src={series.poster_url}
                   alt={series.title}
-                  className={`w-100 ${
+                  className={`w-100 poster ${
                     selectedSeries.includes(series.id) ? "selected" : ""
                   }`}
                 />
               ) : (
-                <div className="w-100 h-100 bg-secondary">
-                  <p className="text-center text-light fs-3 fw-bold"></p>
+                <div
+                  className={`w-100 h-100 bg-secondary d-flex
+                    align-items-center justify-content-center
+                    text-light fs-4 fw-bold text-center poster ${
+                    selectedSeries.includes(series.id) ? "selected" : ""
+                  }`}
+                >
+                  {series.title.toUpperCase()}
                 </div>
               )}
               <p className="w-100 pb-3 fw-bold text-center">
@@ -133,14 +155,19 @@ const GenresSelection = () => {
               )
             }
           >
-            Continuar {">>"}
+            Enviar {">>"}
           </Button>
         </Row>
       </>
     );
-  } else if (isSelectingMovies && moviesData && moviesData.length > 0) {
+  } else if (
+    isSelectingMovies &&
+    firstMoviesData &&
+    firstMoviesData.length > 0
+  ) {
     return (
       <>
+        <ScrollToTop />
         <Row className="justify-content-center">
           <Col xs={12} md={6} className="text-center">
             <h1>Elige tus películas favoritas</h1>
@@ -152,24 +179,31 @@ const GenresSelection = () => {
           </Col>
         </Row>
         <Row className="justify-content-center px-3">
-          {moviesData.map((movie, index) => (
+          {firstMoviesData.map((movie, index) => (
             <Col
               xs={4}
               md={2}
               key={index}
               onClick={() => toggleMovieSelection(movie.id)}
+              className="poster-container"
             >
               {movie.poster_url ? (
                 <img
                   src={movie.poster_url}
                   alt={movie.title}
-                  className={`w-100 ${
+                  className={`w-100 poster ${
                     selectedMovies.includes(movie.id) ? "selected" : ""
                   }`}
                 />
               ) : (
-                <div className="w-100 h-100 bg-secondary">
-                  <p className="text-center text-light fs-3 fw-bold"></p>
+                <div
+                  className={`w-100 h-100 bg-secondary d-flex
+                    align-items-center justify-content-center
+                    text-light fs-4 fw-bold text-center poster ${
+                    selectedMovies.includes(movie.id) ? "selected" : ""
+                  }`}
+                >
+                  {movie.title.toUpperCase()}
                 </div>
               )}
               <p className="w-100 pb-3 fw-bold text-center">

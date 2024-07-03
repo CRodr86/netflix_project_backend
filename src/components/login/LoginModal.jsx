@@ -14,7 +14,7 @@ const LoginModal = () => {
     setShowLoginModal,
     login,
     register,
-    finishRegitration,
+    finishRegistration,
     clearEmailExistsResponse,
     clearUserExistsResponse,
   } = actions;
@@ -30,6 +30,11 @@ const LoginModal = () => {
 
   const [localUserExistsResponse, setLocalUserExistsResponse] = useState("");
   const [localEmailExistsResponse, setLocalEmailExistsResponse] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const usernameRegex = /^[^\s@]+$/;
 
   useEffect(() => {
     if (userExistsResponse) {
@@ -50,9 +55,29 @@ const LoginModal = () => {
       setNewPassword("");
       setNewPasswordConfirmation("");
       setAge(0);
-      finishRegitration;
+      finishRegistration();
     }
   }, [successfullRegistration]);
+
+  const handleEmailChange = (e) => {
+    setNewEmail(e.target.value);
+    setLocalEmailExistsResponse("");
+    if (!emailRegex.test(e.target.value)) {
+      setEmailError("Formato de email inválido");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const handleUsernameChange = (e) => {
+    setNewUsername(e.target.value);
+    setLocalUserExistsResponse("");
+    if (!usernameRegex.test(e.target.value)) {
+      setUsernameError("El nombre de usuario no puede ser un email");
+    } else {
+      setUsernameError("");
+    }
+  };
 
   return (
     <Modal
@@ -87,11 +112,12 @@ const LoginModal = () => {
               aria-describedby="email-register"
               type="email"
               value={newEmail}
-              onChange={(e) => {
-                setNewEmail(e.target.value), setLocalEmailExistsResponse("");
-              }}
+              onChange={handleEmailChange}
             />
           </InputGroup>
+          {emailError && (
+            <p className="text-danger text-center m-0">{emailError}</p>
+          )}
           {localEmailExistsResponse && (
             <p className="text-danger text-center m-0">
               {localEmailExistsResponse}
@@ -109,12 +135,12 @@ const LoginModal = () => {
               aria-label="Nombre de usuario"
               aria-describedby="username-register"
               value={newUsername}
-              onChange={(e) => {
-                setNewUsername(e.target.value);
-                setLocalUserExistsResponse("");
-              }}
+              onChange={handleUsernameChange}
             />
           </InputGroup>
+          {usernameError && (
+            <p className="text-danger text-center m-0">{usernameError}</p>
+          )}
           {localUserExistsResponse && (
             <p className="text-danger text-center m-0">
               {localUserExistsResponse}
@@ -261,7 +287,9 @@ const LoginModal = () => {
               newEmail === "" ||
               newPassword === "" ||
               newPassword !== newPasswordConfirmation ||
-              age === 0
+              age === 0 ||
+              emailError !== "" ||
+              usernameError !== ""
             }
           >
             Registrarse

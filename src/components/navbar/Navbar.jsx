@@ -1,11 +1,18 @@
 import { useContext } from "react";
 import { Context } from "../../store/appContext";
-import { Container, Nav, Navbar, Button, NavDropdown } from "react-bootstrap";
+import {
+  Container,
+  Nav,
+  Navbar,
+  Button,
+  NavDropdown,
+  Stack,
+} from "react-bootstrap";
 import LoginModal from "../login/LoginModal";
 
 const NavbarComponent = () => {
   const { actions } = useContext(Context);
-  const { setShowLoginModal, logout } = actions;
+  const { setShowLoginModal, logout, setPage } = actions;
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
@@ -13,20 +20,26 @@ const NavbarComponent = () => {
     <Navbar bg="dark" data-bs-theme="dark">
       <Container>
         <Navbar.Brand href="#home">Movies Recommendations</Navbar.Brand>
-        <Nav className="ms-auto">
+        <Nav className="d-flex justify-content-between w-75">
           {currentUser ? (
-            <NavDropdown
-              title={`Cuenta de ${currentUser.username}`}
-              id="basic-nav-dropdown"
-            >
-              <NavDropdown.Item href="#action/3.1">
-                Mis valoraciones
-              </NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item onClick={() => logout()}>
-                Cerrar sesión
-              </NavDropdown.Item>
-            </NavDropdown>
+            <>
+              <Stack direction="horizontal" gap={3}>
+                <Nav.Link onClick={()=>setPage("movies")}>Movies</Nav.Link>
+                <Nav.Link onClick={()=>setPage("series")}>Series</Nav.Link>
+              </Stack>
+              <NavDropdown
+                title={`Cuenta de ${currentUser.username}`}
+                id="basic-nav-dropdown"
+              >
+                <NavDropdown.Item onClick={() => setPage("ratedMovies")}>
+                  Mis valoraciones
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={() => logout()}>
+                  Cerrar sesión
+                </NavDropdown.Item>
+              </NavDropdown>
+            </>
           ) : (
             <Button variant="dan" onClick={() => setShowLoginModal(true)}>
               Iniciar sesión
