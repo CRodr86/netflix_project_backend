@@ -9,14 +9,23 @@ import MovieItem from "./MovieItem";
 
 const MoviesFirstPage = () => {
   const { actions, store } = useContext(Context);
-  const { getMoviesData, getNlpRecommendations, getMovieById, setPage } =
-    actions;
-  const { moviesData } = store;
+  const {
+    getMoviesData,
+    getLastRatedMovie,
+    getNlpRecommendations,
+    getMovieById,
+    setPage,
+  } = actions;
+  const { moviesData, lastRatedMovie, lastNlpMoviesData } = store;
   const userId = JSON.parse(localStorage.getItem("user")).id;
   const userGenres = JSON.parse(
     localStorage.getItem("user")
   ).favorite_genres.split(", ");
   const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    getLastRatedMovie(userId);
+  }, [getLastRatedMovie, userId]);
 
   useEffect(() => {
     if (!loaded) {
@@ -52,6 +61,44 @@ const MoviesFirstPage = () => {
     <>
       <ScrollToTop />
       <h1>Movies First Page</h1>
+      {lastRatedMovie && lastNlpMoviesData && (
+        <>
+          <Row>
+            <Col xs={12}>
+              <h3 className="ms-2">
+                Because you like {lastRatedMovie.title.toUpperCase()}
+              </h3>
+            </Col>
+          </Row>
+          <AliceCarousel
+            mouseTracking
+            items={lastNlpMoviesData.map((movie, idx) => (
+              <MovieItem
+                key={idx}
+                movie={movie}
+                handleDragStart={handleDragStart}
+                handleClick={() => handleMovieClick(movie.id)}
+              />
+            ))}
+            infinite
+            disableDotsControls
+            renderPrevButton={() => (
+              <button className="alice-carousel__prev-btn fs-3">‹</button>
+            )}
+            renderNextButton={() => (
+              <button className="alice-carousel__next-btn fs-3">›</button>
+            )}
+            responsive={{
+              0: { items: 2 },
+              512: { items: 3 },
+              1024: { items: 5 },
+              1280: { items: 7 },
+              1600: { items: 7 },
+            }}
+          />
+        </>
+      )}
+
       {userGenres.map((genre, index) => (
         <div key={index}>
           <Row>

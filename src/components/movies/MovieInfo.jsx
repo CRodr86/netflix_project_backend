@@ -29,6 +29,7 @@ const MovieInfo = () => {
 
   const handleMovieClick = useCallback(
     (movieId) => {
+      setRating("");
       getNlpRecommendations(currentUser.id, movieId, "movie");
       getMovieById(movieId, currentUser.id);
       setPage("movieInfo");

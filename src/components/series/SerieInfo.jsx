@@ -29,6 +29,7 @@ const SerieInfo = () => {
 
   const handleSerieClick = useCallback(
     (serieId) => {
+      setRating("");
       getNlpRecommendations(currentUser.id, serieId, "serie");
       getSerieById(serieId, currentUser.id);
       setPage("serieInfo");

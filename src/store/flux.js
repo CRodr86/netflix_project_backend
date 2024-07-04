@@ -18,6 +18,10 @@ const getState = ({ /*getStore,*/ getActions, setStore }) => {
       ratedSeriesData: [],
       nlpMoviesData: [],
       nlpSeriesData: [],
+      lastRatedMovie: {},
+      lastRatedSerie: {},
+      lastNlpMoviesData: [],
+      lastNlpSeriesData: [],
     },
     actions: {
       login: async (username, password) => {
@@ -240,8 +244,10 @@ const getState = ({ /*getStore,*/ getActions, setStore }) => {
           setStore({ serieInfo: {} });
         } else if (value === "movieInfo") {
           setStore({ movieInfo: {} });
+          setStore({ nlpMoviesData: [] });
         } else if (value === "serieInfo") {
           setStore({ serieInfo: {} });
+          setStore({ nlpSeriesData: [] });
         } else if (value === "ratedMovies") {
           setStore({ ratedMoviesData: [] });
           setStore({ ratedSeriesData: [] });
@@ -338,7 +344,12 @@ const getState = ({ /*getStore,*/ getActions, setStore }) => {
           console.log(error);
         }
       },
-      getNlpRecommendations: async (user_id, item_id, item_type) => {
+      getNlpRecommendations: async (
+        user_id,
+        item_id,
+        item_type,
+        source = "similar"
+      ) => {
         try {
           const response = await fetch(
             import.meta.env.VITE_BACKEND_URL + `/nlp-recommendations`,
@@ -355,10 +366,57 @@ const getState = ({ /*getStore,*/ getActions, setStore }) => {
             }
           );
           const data = await response.json();
-          if (item_type === "movie") {
-            setStore({ nlpMoviesData: data });
-          } else if (item_type === "serie") {
-            setStore({ nlpSeriesData: data });
+
+          if (source === "similar") {
+            if (item_type === "movie") {
+              setStore({ nlpMoviesData: data });
+            } else if (item_type === "serie") {
+              setStore({ nlpSeriesData: data });
+            }
+          } else if (source === "last") {
+            if (item_type === "movie") {
+              setStore({ lastNlpMoviesData: data });
+            } else if (item_type === "serie") {
+              setStore({ lastNlpSeriesData: data });
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getLastRatedMovie: async (user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/last-rated-movie/${user_id}`
+          );
+          const data = await response.json();
+          if (response.status === 200) {
+            setStore({ lastRatedMovie: data });
+            getActions().getNlpRecommendations(
+              user_id,
+              data.id,
+              "movie",
+              "last"
+            );
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getLastRatedSerie: async (user_id) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/last-rated-serie/${user_id}`
+          );
+          const data = await response.json();
+          if (response.status === 200) {
+            setStore({ lastRatedSerie: data });
+            getActions().getNlpRecommendations(
+              user_id,
+              data.id,
+              "serie",
+              "last"
+            );
           }
         } catch (error) {
           console.log(error);

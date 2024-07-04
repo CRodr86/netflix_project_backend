@@ -110,7 +110,7 @@ const RatedSeries = () => {
           ))}
         </Row>
       ) : showNoRatingsMessage ? (
-        <Row className="justify-content-center align-items-center min-vh-50">
+        <Row className="justify-content-center align-items-center text-center fs-3 min-vh-50">
           <p>Todavía no has valorado ninguna serie</p>
         </Row>
       ) : null}
