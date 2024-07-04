@@ -17,17 +17,20 @@ const SeriesFirstPage = () => {
     setPage,
   } = actions;
   const { seriesData, lastRatedSerie, lastNlpSeriesData } = store;
-  const userId = JSON.parse(localStorage.getItem("user")).id;
-  const userGenres = JSON.parse(
-    localStorage.getItem("user")
-  ).favorite_genres.split(", ");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user.id;
+  const userGenres = user.favorite_genres.split(", ");
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    const fetchData = async () => {
+      await getSeriesData(userId);
+      await getLastRatedSerie(userId);
+      setLoaded(true);
+    };
+
     if (!loaded) {
-      getSeriesData(userId)
-        .then(() => getLastRatedSerie(userId))
-        .then(() => setLoaded(true));
+      fetchData();
     }
   }, [loaded, getSeriesData, userId, getLastRatedSerie]);
 
