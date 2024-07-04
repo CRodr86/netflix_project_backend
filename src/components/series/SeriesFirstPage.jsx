@@ -24,14 +24,12 @@ const SeriesFirstPage = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getLastRatedSerie(userId);
-  }, [getLastRatedSerie, userId]);
-
-  useEffect(() => {
     if (!loaded) {
-      getSeriesData(userId).then(() => setLoaded(true));
+      getSeriesData(userId)
+        .then(() => getLastRatedSerie(userId))
+        .then(() => setLoaded(true));
     }
-  }, [loaded, getSeriesData, userId]);
+  }, [loaded, getSeriesData, userId, getLastRatedSerie]);
 
   const handleDragStart = useCallback((e) => e.preventDefault(), []);
 
@@ -61,7 +59,7 @@ const SeriesFirstPage = () => {
     <>
       <ScrollToTop />
       <h1>Series First Page</h1>
-      {lastRatedSerie && lastNlpSeriesData && (
+      {lastRatedSerie && lastRatedSerie.title && lastNlpSeriesData && (
         <>
           <Row className="justify-content-center">
             <Col xs={12} className="text-center">

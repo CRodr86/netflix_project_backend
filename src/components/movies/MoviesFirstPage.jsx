@@ -24,14 +24,12 @@ const MoviesFirstPage = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    getLastRatedMovie(userId);
-  }, [getLastRatedMovie, userId]);
-
-  useEffect(() => {
     if (!loaded) {
-      getMoviesData(userId).then(() => setLoaded(true));
+      getMoviesData(userId)
+        .then(() => getLastRatedMovie(userId))
+        .then(() => setLoaded(true));
     }
-  }, [loaded, getMoviesData, userId]);
+  }, [loaded, getMoviesData, getLastRatedMovie, userId]);
 
   const handleDragStart = useCallback((e) => e.preventDefault(), []);
 
@@ -61,7 +59,7 @@ const MoviesFirstPage = () => {
     <>
       <ScrollToTop />
       <h1>Movies First Page</h1>
-      {lastRatedMovie && lastNlpMoviesData && (
+      {lastRatedMovie && lastRatedMovie.title && lastNlpMoviesData && (
         <>
           <Row>
             <Col xs={12}>
