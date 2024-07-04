@@ -24,10 +24,14 @@ const MoviesFirstPage = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    const fetchData = async () => {
+      await getMoviesData(userId);
+      await getLastRatedMovie(userId);
+      setLoaded(true);
+    };
+
     if (!loaded) {
-      getMoviesData(userId)
-        .then(() => getLastRatedMovie(userId))
-        .then(() => setLoaded(true));
+      fetchData();
     }
   }, [loaded, getMoviesData, getLastRatedMovie, userId]);
 
@@ -59,43 +63,46 @@ const MoviesFirstPage = () => {
     <>
       <ScrollToTop />
       <h1>Movies First Page</h1>
-      {lastRatedMovie && lastRatedMovie.title && lastNlpMoviesData && (
-        <>
-          <Row>
-            <Col xs={12}>
-              <h3 className="ms-2">
-                Because you like {lastRatedMovie.title.toUpperCase()}
-              </h3>
-            </Col>
-          </Row>
-          <AliceCarousel
-            mouseTracking
-            items={lastNlpMoviesData.map((movie, idx) => (
-              <MovieItem
-                key={idx}
-                movie={movie}
-                handleDragStart={handleDragStart}
-                handleClick={() => handleMovieClick(movie.id)}
-              />
-            ))}
-            infinite
-            disableDotsControls
-            renderPrevButton={() => (
-              <button className="alice-carousel__prev-btn fs-3">‹</button>
-            )}
-            renderNextButton={() => (
-              <button className="alice-carousel__next-btn fs-3">›</button>
-            )}
-            responsive={{
-              0: { items: 2 },
-              512: { items: 3 },
-              1024: { items: 5 },
-              1280: { items: 7 },
-              1600: { items: 7 },
-            }}
-          />
-        </>
-      )}
+      {lastRatedMovie &&
+        lastRatedMovie.title &&
+        Array.isArray(lastNlpMoviesData) &&
+        lastNlpMoviesData.length > 0 && (
+          <>
+            <Row>
+              <Col xs={12}>
+                <h3 className="ms-2">
+                  Because you like {lastRatedMovie.title.toUpperCase()}
+                </h3>
+              </Col>
+            </Row>
+            <AliceCarousel
+              mouseTracking
+              items={lastNlpMoviesData.map((movie, idx) => (
+                <MovieItem
+                  key={idx}
+                  movie={movie}
+                  handleDragStart={handleDragStart}
+                  handleClick={() => handleMovieClick(movie.id)}
+                />
+              ))}
+              infinite
+              disableDotsControls
+              renderPrevButton={() => (
+                <button className="alice-carousel__prev-btn fs-3">‹</button>
+              )}
+              renderNextButton={() => (
+                <button className="alice-carousel__next-btn fs-3">›</button>
+              )}
+              responsive={{
+                0: { items: 2 },
+                512: { items: 3 },
+                1024: { items: 5 },
+                1280: { items: 7 },
+                1600: { items: 7 },
+              }}
+            />
+          </>
+        )}
 
       {userGenres.map((genre, index) => (
         <div key={index}>
@@ -104,32 +111,34 @@ const MoviesFirstPage = () => {
               <h3 className="ms-2">{genre}</h3>
             </Col>
           </Row>
-          <AliceCarousel
-            mouseTracking
-            items={moviesData[genre]?.map((movie, idx) => (
-              <MovieItem
-                key={idx}
-                movie={movie}
-                handleDragStart={handleDragStart}
-                handleClick={() => handleMovieClick(movie.id)}
-              />
-            ))}
-            infinite
-            disableDotsControls
-            renderPrevButton={() => (
-              <button className="alice-carousel__prev-btn fs-3">‹</button>
-            )}
-            renderNextButton={() => (
-              <button className="alice-carousel__next-btn fs-3">›</button>
-            )}
-            responsive={{
-              0: { items: 2 },
-              512: { items: 3 },
-              1024: { items: 5 },
-              1280: { items: 7 },
-              1600: { items: 7 },
-            }}
-          />
+          {Array.isArray(moviesData[genre]) && moviesData[genre].length > 0 && (
+            <AliceCarousel
+              mouseTracking
+              items={moviesData[genre].map((movie, idx) => (
+                <MovieItem
+                  key={idx}
+                  movie={movie}
+                  handleDragStart={handleDragStart}
+                  handleClick={() => handleMovieClick(movie.id)}
+                />
+              ))}
+              infinite
+              disableDotsControls
+              renderPrevButton={() => (
+                <button className="alice-carousel__prev-btn fs-3">‹</button>
+              )}
+              renderNextButton={() => (
+                <button className="alice-carousel__next-btn fs-3">›</button>
+              )}
+              responsive={{
+                0: { items: 2 },
+                512: { items: 3 },
+                1024: { items: 5 },
+                1280: { items: 7 },
+                1600: { items: 7 },
+              }}
+            />
+          )}
         </div>
       ))}
     </>

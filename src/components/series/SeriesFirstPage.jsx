@@ -68,7 +68,7 @@ const SeriesFirstPage = () => {
         lastNlpSeriesData.length > 0 && (
           <>
             <Row className="justify-content-center">
-              <Col xs={12} className="text-center">
+              <Col xs={12}>
                 <h3 className="ms-2">
                   Because you like {lastRatedSerie.title.toUpperCase()}
                 </h3>
