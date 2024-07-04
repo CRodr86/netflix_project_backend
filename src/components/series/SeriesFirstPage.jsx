@@ -62,43 +62,46 @@ const SeriesFirstPage = () => {
     <>
       <ScrollToTop />
       <h1>Series First Page</h1>
-      {lastRatedSerie && lastRatedSerie.title && lastNlpSeriesData && (
-        <>
-          <Row className="justify-content-center">
-            <Col xs={12} className="text-center">
-              <h3 className="ms-2">
-                Because you like {lastRatedSerie.title.toUpperCase()}
-              </h3>
-            </Col>
-          </Row>
-          <AliceCarousel
-            mouseTracking
-            items={lastNlpSeriesData.map((serie, idx) => (
-              <SerieItem
-                key={idx}
-                serie={serie}
-                handleDragStart={handleDragStart}
-                handleClick={() => handleSerieClick(serie.id)}
-              />
-            ))}
-            infinite
-            disableDotsControls
-            renderPrevButton={() => (
-              <button className="alice-carousel__prev-btn fs-3">‹</button>
-            )}
-            renderNextButton={() => (
-              <button className="alice-carousel__next-btn fs-3">›</button>
-            )}
-            responsive={{
-              0: { items: 2 },
-              512: { items: 3 },
-              1024: { items: 5 },
-              1280: { items: 7 },
-              1600: { items: 7 },
-            }}
-          />
-        </>
-      )}
+      {lastRatedSerie &&
+        lastRatedSerie.title &&
+        Array.isArray(lastNlpSeriesData) &&
+        lastNlpSeriesData.length > 0 && (
+          <>
+            <Row className="justify-content-center">
+              <Col xs={12} className="text-center">
+                <h3 className="ms-2">
+                  Because you like {lastRatedSerie.title.toUpperCase()}
+                </h3>
+              </Col>
+            </Row>
+            <AliceCarousel
+              mouseTracking
+              items={lastNlpSeriesData.map((serie, idx) => (
+                <SerieItem
+                  key={idx}
+                  serie={serie}
+                  handleDragStart={handleDragStart}
+                  handleClick={() => handleSerieClick(serie.id)}
+                />
+              ))}
+              infinite
+              disableDotsControls
+              renderPrevButton={() => (
+                <button className="alice-carousel__prev-btn fs-3">‹</button>
+              )}
+              renderNextButton={() => (
+                <button className="alice-carousel__next-btn fs-3">›</button>
+              )}
+              responsive={{
+                0: { items: 2 },
+                512: { items: 3 },
+                1024: { items: 5 },
+                1280: { items: 7 },
+                1600: { items: 7 },
+              }}
+            />
+          </>
+        )}
       {userGenres.map((genre, index) => (
         <div key={index}>
           <Row>
@@ -106,32 +109,34 @@ const SeriesFirstPage = () => {
               <h3 className="ms-2">{genre}</h3>
             </Col>
           </Row>
-          <AliceCarousel
-            mouseTracking
-            items={seriesData[genre]?.map((serie, idx) => (
-              <SerieItem
-                key={idx}
-                serie={serie}
-                handleDragStart={handleDragStart}
-                handleClick={() => handleSerieClick(serie.id)}
-              />
-            ))}
-            infinite
-            disableDotsControls
-            renderPrevButton={() => (
-              <button className="alice-carousel__prev-btn fs-3">‹</button>
-            )}
-            renderNextButton={() => (
-              <button className="alice-carousel__next-btn fs-3">›</button>
-            )}
-            responsive={{
-              0: { items: 2 },
-              512: { items: 3 },
-              1024: { items: 5 },
-              1280: { items: 7 },
-              1600: { items: 7 },
-            }}
-          />
+          {Array.isArray(seriesData[genre]) && seriesData[genre].length > 0 && (
+            <AliceCarousel
+              mouseTracking
+              items={seriesData[genre].map((serie, idx) => (
+                <SerieItem
+                  key={idx}
+                  serie={serie}
+                  handleDragStart={handleDragStart}
+                  handleClick={() => handleSerieClick(serie.id)}
+                />
+              ))}
+              infinite
+              disableDotsControls
+              renderPrevButton={() => (
+                <button className="alice-carousel__prev-btn fs-3">‹</button>
+              )}
+              renderNextButton={() => (
+                <button className="alice-carousel__next-btn fs-3">›</button>
+              )}
+              responsive={{
+                0: { items: 2 },
+                512: { items: 3 },
+                1024: { items: 5 },
+                1280: { items: 7 },
+                1600: { items: 7 },
+              }}
+            />
+          )}
         </div>
       ))}
     </>
