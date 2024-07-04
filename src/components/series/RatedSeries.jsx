@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "../../store/appContext";
 import { Row, Col, Spinner } from "react-bootstrap";
 import "./SeriesFirstPage.css";
@@ -9,26 +9,48 @@ import dislike from "../../assets/dislike.svg";
 
 const RatedSeries = () => {
   const { actions, store } = useContext(Context);
-  const { getUserSeriesRatings, getSerieById, setPage } = actions;
+  const { getUserSeriesRatings, getNlpRecommendations, getSerieById, setPage } =
+    actions;
   const { ratedSeriesData } = store;
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
+  const [loading, setLoading] = useState(true);
+  const [showNoRatingsMessage, setShowNoRatingsMessage] = useState(false);
+
   useEffect(() => {
-    currentUser && getUserSeriesRatings(Number(currentUser.id));
+    if (currentUser) {
+      getUserSeriesRatings(Number(currentUser.id)).finally(() =>
+        setLoading(false)
+      );
+    }
   }, []);
 
-  if (ratedSeriesData && ratedSeriesData.length > 0) {
-    return (
-      <>
-        <ScrollToTop />
-        <Row className="justify-content-center">
-          <Col xs={12} md={6} className="text-center">
-            <p className="fs-5">
-              Aquí puedes ver las series que has valorado previamente
-            </p>
-          </Col>
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!ratedSeriesData || ratedSeriesData.length === 0) {
+        setShowNoRatingsMessage(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [ratedSeriesData]);
+
+  return (
+    <>
+      <ScrollToTop />
+      <Row className="justify-content-center">
+        <Col xs={12} md={6} className="text-center">
+          <p className="fs-5">
+            Aquí puedes ver las series que has valorado previamente
+          </p>
+        </Col>
+      </Row>
+      {loading ? (
+        <Row className="justify-content-center align-items-center min-vh-50">
+          <Spinner animation="border" />
         </Row>
+      ) : ratedSeriesData && ratedSeriesData.length > 0 ? (
         <Row className="justify-content-center px-3">
           {ratedSeriesData.map((series, index) => (
             <Col
@@ -56,6 +78,11 @@ const RatedSeries = () => {
                     alt={series.serie.title}
                     className="w-100 rated-poster"
                     onClick={() => {
+                      getNlpRecommendations(
+                        currentUser.id,
+                        series.serie.id,
+                        "serie"
+                      );
                       getSerieById(series.serie.id, currentUser.id);
                       setPage("serieInfo");
                     }}
@@ -82,15 +109,13 @@ const RatedSeries = () => {
             </Col>
           ))}
         </Row>
-      </>
-    );
-  } else {
-    return (
-      <Row className="justify-content-center align-items-center min-vh-100">
-        <Spinner animation="border" />
-      </Row>
-    );
-  }
+      ) : showNoRatingsMessage ? (
+        <Row className="justify-content-center align-items-center min-vh-50">
+          <p>Todavía no has valorado ninguna serie</p>
+        </Row>
+      ) : null}
+    </>
+  );
 };
 
 export default RatedSeries;

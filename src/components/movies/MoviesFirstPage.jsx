@@ -5,11 +5,12 @@ import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
 import "./MoviesFirstPage.css";
 import ScrollToTop from "../utils/ScrollToTop";
-import MovieItem from "./MovieItem"; // Certifique-se de importar corretamente
+import MovieItem from "./MovieItem";
 
 const MoviesFirstPage = () => {
   const { actions, store } = useContext(Context);
-  const { getMoviesData, getMovieById, setPage } = actions;
+  const { getMoviesData, getNlpRecommendations, getMovieById, setPage } =
+    actions;
   const { moviesData } = store;
   const userId = JSON.parse(localStorage.getItem("user")).id;
   const userGenres = JSON.parse(
@@ -27,10 +28,11 @@ const MoviesFirstPage = () => {
 
   const handleMovieClick = useCallback(
     (movieId) => {
+      getNlpRecommendations(userId, movieId, "movie");
       getMovieById(movieId, userId);
       setPage("movieInfo");
     },
-    [getMovieById, setPage, userId]
+    [getNlpRecommendations, getMovieById, setPage, userId]
   );
 
   if (!loaded) {

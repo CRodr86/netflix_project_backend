@@ -5,11 +5,12 @@ import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
 import "./SeriesFirstPage.css";
 import ScrollToTop from "../utils/ScrollToTop";
-import SerieItem from "./SerieItem"; // Certifique-se de importar corretamente
+import SerieItem from "./SerieItem";
 
 const SeriesFirstPage = () => {
   const { actions, store } = useContext(Context);
-  const { getSeriesData, getSerieById, setPage } = actions;
+  const { getSeriesData, getNlpRecommendations, getSerieById, setPage } =
+    actions;
   const { seriesData } = store;
   const userId = JSON.parse(localStorage.getItem("user")).id;
   const userGenres = JSON.parse(
@@ -27,10 +28,11 @@ const SeriesFirstPage = () => {
 
   const handleSerieClick = useCallback(
     (serieId) => {
+      getNlpRecommendations(userId, serieId, "serie");
       getSerieById(serieId, userId);
       setPage("serieInfo");
     },
-    [getSerieById, setPage, userId]
+    [getNlpRecommendations, getSerieById, setPage, userId]
   );
 
   if (!loaded) {

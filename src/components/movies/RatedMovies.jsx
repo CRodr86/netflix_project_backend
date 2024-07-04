@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Context } from "../../store/appContext";
 import { Row, Col, Spinner, Tabs, Tab } from "react-bootstrap";
 import "./MoviesFirstPage.css";
@@ -10,38 +10,60 @@ import RatedSeries from "../series/RatedSeries";
 
 const RatedMovies = () => {
   const { actions, store } = useContext(Context);
-  const { getUserMoviesRatings, getMovieById, setPage } = actions;
+  const { getUserMoviesRatings, getNlpRecommendations, getMovieById, setPage } =
+    actions;
   const { ratedMoviesData } = store;
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
+  const [loading, setLoading] = useState(true);
+  const [showNoRatingsMessage, setShowNoRatingsMessage] = useState(false);
+
   useEffect(() => {
-    currentUser && getUserMoviesRatings(Number(currentUser.id));
+    if (currentUser) {
+      getUserMoviesRatings(Number(currentUser.id)).finally(() =>
+        setLoading(false)
+      );
+    }
   }, []);
 
-  if (ratedMoviesData && ratedMoviesData.length > 0) {
-    return (
-      <>
-        <Row className="justify-content-center">
-          <Col xs={12} md={6} className="text-center">
-            <h1>Mis valoraciones</h1>
-          </Col>
-        </Row>
-        <Tabs
-          defaultActiveKey="rated-movies"
-          id="rated-tab"
-          variant="pills"
-          className="my-2 d-flex justify-content-center"
-        >
-          <Tab eventKey="rated-movies" title="Películas">
-            <ScrollToTop />
-            <Row className="justify-content-center">
-              <Col xs={12} md={6} className="text-center">
-                <p className="fs-5">
-                  Aquí puedes ver las películas que has valorado previamente
-                </p>
-              </Col>
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!ratedMoviesData || ratedMoviesData.length === 0) {
+        setShowNoRatingsMessage(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [ratedMoviesData]);
+
+  return (
+    <>
+      <Row className="justify-content-center">
+        <Col xs={12} md={6} className="text-center">
+          <h1>Mis valoraciones</h1>
+        </Col>
+      </Row>
+      <Tabs
+        defaultActiveKey="rated-movies"
+        id="rated-tab"
+        variant="pills"
+        className="my-2 d-flex justify-content-center"
+      >
+        <Tab eventKey="rated-movies" title="Películas">
+          <ScrollToTop />
+          <Row className="justify-content-center">
+            <Col xs={12} md={6} className="text-center">
+              <p className="fs-5">
+                Aquí puedes ver las películas que has valorado previamente
+              </p>
+            </Col>
+          </Row>
+          {loading ? (
+            <Row className="justify-content-center align-items-center min-vh-50">
+              <Spinner animation="border" />
             </Row>
+          ) : ratedMoviesData && ratedMoviesData.length > 0 ? (
             <Row className="justify-content-center px-3">
               {ratedMoviesData.map((movies, index) => (
                 <Col
@@ -73,6 +95,11 @@ const RatedMovies = () => {
                         alt={movies.movie.title}
                         className="w-100 rated-poster"
                         onClick={() => {
+                          getNlpRecommendations(
+                            currentUser.id,
+                            movies.movie.id,
+                            "movie"
+                          );
                           getMovieById(movies.movie.id, currentUser.id);
                           setPage("movieInfo");
                         }}
@@ -86,8 +113,8 @@ const RatedMovies = () => {
 
                       <div
                         className="w-100 h-100 bg-secondary d-flex
-                    align-items-center justify-content-center
-                    text-light fs-4 fw-bold text-center rated-poster"
+                        align-items-center justify-content-center
+                        text-light fs-4 fw-bold text-center rated-poster"
                       >
                         {movies.movie.title.toUpperCase()}
                       </div>
@@ -99,20 +126,18 @@ const RatedMovies = () => {
                 </Col>
               ))}
             </Row>
-          </Tab>
-          <Tab eventKey="rated-series" title="Series">
-            <RatedSeries />
-          </Tab>
-        </Tabs>
-      </>
-    );
-  } else {
-    return (
-      <Row className="justify-content-center align-items-center min-vh-100">
-        <Spinner animation="border" />
-      </Row>
-    );
-  }
+          ) : showNoRatingsMessage ? (
+            <Row className="justify-content-center align-items-center min-vh-50">
+              <p>Todavía no has valorado ninguna película</p>
+            </Row>
+          ) : null}
+        </Tab>
+        <Tab eventKey="rated-series" title="Series">
+          <RatedSeries />
+        </Tab>
+      </Tabs>
+    </>
+  );
 };
 
 export default RatedMovies;

@@ -16,6 +16,8 @@ const getState = ({ /*getStore,*/ getActions, setStore }) => {
       serieInfo: {},
       ratedMoviesData: [],
       ratedSeriesData: [],
+      nlpMoviesData: [],
+      nlpSeriesData: [],
     },
     actions: {
       login: async (username, password) => {
@@ -331,6 +333,32 @@ const getState = ({ /*getStore,*/ getActions, setStore }) => {
           );
           if (response.status === 201) {
             getActions().getUserById(user_id);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getNlpRecommendations: async (user_id, item_id, item_type) => {
+        try {
+          const response = await fetch(
+            import.meta.env.VITE_BACKEND_URL + `/nlp-recommendations`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_id: user_id,
+                item_id: item_id,
+                item_type: item_type,
+              }),
+            }
+          );
+          const data = await response.json();
+          if (item_type === "movie") {
+            setStore({ nlpMoviesData: data });
+          } else if (item_type === "serie") {
+            setStore({ nlpSeriesData: data });
           }
         } catch (error) {
           console.log(error);

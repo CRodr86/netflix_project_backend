@@ -12,7 +12,7 @@ import RatedMovies from "../components/movies/RatedMovies";
 const Home = () => {
   const { store } = useContext(Context);
 
-  const { page, movieInfo, serieInfo } = store;
+  const { page, movieInfo, nlpMoviesData, serieInfo, nlpSeriesData } = store;
 
   const token = localStorage.getItem("jwt-token");
   const currentUser = JSON.parse(localStorage.getItem("user"));
@@ -26,6 +26,7 @@ const Home = () => {
       {token &&
         currentUser.favorite_genres &&
         page == "movieInfo" &&
+        nlpMoviesData &&
         movieInfo && <MovieInfo />}
       {token && currentUser.favorite_genres && page == "series" && (
         <SeriesFirstPage />
@@ -33,6 +34,7 @@ const Home = () => {
       {token &&
         currentUser.favorite_genres &&
         page == "serieInfo" &&
+        nlpSeriesData &&
         serieInfo && <SerieInfo />}
       {token && currentUser.favorite_genres && page == "ratedMovies" && (
         <RatedMovies />
