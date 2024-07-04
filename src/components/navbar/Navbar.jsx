@@ -20,7 +20,7 @@ const NavbarComponent = () => {
     <Navbar bg="dark" data-bs-theme="dark">
       <Container>
         <Navbar.Brand href="#home">Movies Recommendations</Navbar.Brand>
-        <Nav className="d-flex justify-content-between w-75">
+        <Nav className={`d-flex ${currentUser ? 'justify-content-between' : ''} w-75`}>
           {currentUser ? (
             <>
               <Stack direction="horizontal" gap={3}>
@@ -41,7 +41,7 @@ const NavbarComponent = () => {
               </NavDropdown>
             </>
           ) : (
-            <Button variant="dan" onClick={() => setShowLoginModal(true)}>
+            <Button className="ms-auto" variant="dan" onClick={() => setShowLoginModal(true)}>
               Iniciar sesión
             </Button>
           )}

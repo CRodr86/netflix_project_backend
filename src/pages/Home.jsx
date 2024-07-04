@@ -8,6 +8,7 @@ import SeriesFirstPage from "../components/series/SeriesFirstPage";
 import MovieInfo from "../components/movies/MovieInfo";
 import SerieInfo from "../components/series/SerieInfo";
 import RatedMovies from "../components/movies/RatedMovies";
+import homeImage from "../assets/home.webp";
 
 const Home = () => {
   const { store } = useContext(Context);
@@ -39,7 +40,7 @@ const Home = () => {
       {token && currentUser.favorite_genres && page == "ratedMovies" && (
         <RatedMovies />
       )}
-      {!token && <h1>Home</h1>}
+      {!token && <img src={homeImage} alt="home" className="home-image img-fluid w-100 h-100" />}
     </Container>
   );
 };
