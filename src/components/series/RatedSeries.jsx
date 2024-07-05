@@ -90,14 +90,30 @@ const RatedSeries = () => {
                 </>
               ) : (
                 <>
-                  <div className="rated-overlay">
-                    <span>{series.rating}</span>
-                  </div>
-
+                  {series.rating === "Me encanta" ? (
+                    <img src={love} alt="Me encanta" className="rated-icon" />
+                  ) : series.rating === "Me gusta" ? (
+                    <img src={like} alt="Me gusta" className="rated-icon" />
+                  ) : (
+                    <img
+                      src={dislike}
+                      alt="No me gusta"
+                      className="rated-icon"
+                    />
+                  )}
                   <div
                     className="w-100 h-100 bg-secondary d-flex
                     align-items-center justify-content-center
                     text-light fs-4 fw-bold text-center rated-poster"
+                    onClick={() => {
+                      getNlpRecommendations(
+                        currentUser.id,
+                        series.serie.id,
+                        "serie"
+                      );
+                      getSerieById(series.serie.id, currentUser.id);
+                      setPage("serieInfo");
+                    }}
                   >
                     {series.serie.title.toUpperCase()}
                   </div>

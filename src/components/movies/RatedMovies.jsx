@@ -107,14 +107,34 @@ const RatedMovies = () => {
                     </>
                   ) : (
                     <>
-                      <div className="rated-overlay">
-                        <span>{movies.rating}</span>
-                      </div>
-
+                      {movies.rating === "Me encanta" ? (
+                        <img
+                          src={love}
+                          alt="Me encanta"
+                          className="rated-icon"
+                        />
+                      ) : movies.rating === "Me gusta" ? (
+                        <img src={like} alt="Me gusta" className="rated-icon" />
+                      ) : (
+                        <img
+                          src={dislike}
+                          alt="No me gusta"
+                          className="rated-icon"
+                        />
+                      )}
                       <div
                         className="w-100 h-100 bg-secondary d-flex
                         align-items-center justify-content-center
                         text-light fs-4 fw-bold text-center rated-poster"
+                        onClick={() => {
+                          getNlpRecommendations(
+                            currentUser.id,
+                            movies.movie.id,
+                            "movie"
+                          );
+                          getMovieById(movies.movie.id, currentUser.id);
+                          setPage("movieInfo");
+                        }}
                       >
                         {movies.movie.title.toUpperCase()}
                       </div>
